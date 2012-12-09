@@ -1,0 +1,71 @@
+#!/bin/bash -e
+##
+# Git Share: a simple tool to share/backup/restore git stash
+#
+# http://github.com/qcho/git-share
+##
+
+USAGE="Usage: git helper methods for sharing repos
+Stash: 
+    git share stash backup [DIR]\tbackup all stashes to DIR or default ./git-share_stash
+    git share stash restore [DIR]\trestore all stashes from DIR or default ./git-share_stash
+"
+case $1 in
+    "stash")
+        echo -n "Stash "
+        PROJECT_DIR=$PWD
+        STASH_DIR="$PROJECT_DIR/${3:-git-share_stash}"
+        GIT_SUBMODULES="
+`git submodule status --recursive | awk -F ' ' '{print $2}'`"
+        case $2 in
+            "backup")
+                echo "backing up..."
+                echo "$GIT_SUBMODULES" | while read SUBMODULE
+                do
+                    mkdir $STASH_DIR/$SUBMODULE
+                    cd "./$SUBMODULE"
+                    echo -n "$PWD..."
+                    git stash list | while read STASH
+                    do
+                        STASH_REF="${STASH%%: *}"
+                        STASH_DETAIL="${STASH#*: }"
+                        PATCH_FILENAME=${STASH_REF}_${STASH_DETAIL}.patch
+                        PATCH_FILENAME=${PATCH_FILENAME//[^A-Za-z0-9._-]/_} #filename sanitization
+                        git stash show -p $STASH_REF > $STASH_DIR/$SUBMODULE/$PATCH_FILENAME
+                    done
+                    echo -e "\033[1;32m done\033[m"
+                    cd "$PROJECT_DIR"
+                done
+                echo "done backing up."
+            ;;
+            "restore")
+                echo "restoring..."
+                echo "$GIT_SUBMODULES" | while read SUBMODULE
+                do
+                    STASH_RESTORED_DIR="$STASH_DIR/restored/$SUBMODULE"
+                    [ -d $STASH_RESTORED_DIR ] || mkdir $STASH_RESTORED_DIR/
+                    cd "./$SUBMODULE"
+                    echo -e "\033[1;34m$PWD:\033[m"
+                    find $STASH_DIR/$SUBMODULE -maxdepth 1 -type f | sort -k1.8rn | while read STASH
+                    do
+                        RESTORED_PATH="$STASH_RESTORED_DIR/${STASH##*/}"
+                        echo -n "$RESTORED_PATH..."
+                        mv $STASH $RESTORED_PATH
+                        #echo "$STASH_RESTORED_DIR/$STASH"
+                        echo -e "\033[1;32m done\033[m"
+                    done
+                    cd "$PROJECT_DIR"
+                done
+                echo "done restoring."
+            ;;
+            *)
+                echo -e "\033[1;31mInvalid subcommand for $1: $2\033[m"
+                echo -e "$USAGE"
+            ;;
+        esac
+    ;;
+    *) 
+        echo -e "\033[1;31mInvalid command: $1\033[m"
+        echo -e "$USAGE"
+    ;;
+esac
