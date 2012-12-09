@@ -19,9 +19,9 @@ Features
 
 Usage
 =====
-1) git share stash backup [DIR]    backup all stashes to DIR or default ./git-share_stash (@origin_machine/git_project)
-2) Share the directory full of stashes
-3) git share stash restore [DIR]   restore all stashes from DIR or default ./git-share_stash (@target_machine/git_project)
+1. git share stash backup [DIR]    backup all stashes to DIR or default ./git-share_stash (@origin_machine/git_project)
+2. Share the directory full of stashes!
+3. git share stash restore [DIR]   restore all stashes from DIR or default ./git-share_stash (@target_machine/git_project)
 
 Things you may want to consider
 ===============================
