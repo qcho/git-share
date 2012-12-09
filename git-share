@@ -19,7 +19,7 @@ case $1 in
 `git submodule status --recursive | awk -F ' ' '{print $2}'`"
         case $2 in
             "backup")
-                echo "backing up..."
+                echo "backing-up..."
                 echo "$GIT_SUBMODULES" | while read SUBMODULE
                 do
                     mkdir $STASH_DIR/$SUBMODULE
@@ -36,7 +36,7 @@ case $1 in
                     echo -e "\033[1;32m done\033[m"
                     cd "$PROJECT_DIR"
                 done
-                echo "done backing up."
+                echo "backing-up done"
             ;;
             "restore")
                 echo "restoring..."
@@ -56,7 +56,7 @@ case $1 in
                     done
                     cd "$PROJECT_DIR"
                 done
-                echo "done restoring."
+                echo "restoring done"
             ;;
             *)
                 echo -e "\033[1;31mInvalid subcommand for $1: $2\033[m"
